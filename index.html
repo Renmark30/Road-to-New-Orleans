@@ -1,4 +1,227 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- ...existing code... -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Road to New Orleans</title>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Base styles for the body and root elements */
+        :root {
+            font-family: 'Inter', sans-serif; /* Default font for the game content */
+        }
+
+        h1, h2 {
+            font-family: 'Merriweather', serif; /* Headings use Merriweather */
+        }
+
+        /* Define CSS variables for themes */
+        /* Light Theme (default) */
+        .light {
+            --bg-color: #f8f8f8;
+            --text-color-primary: #1a202c;
+            --text-color-secondary: #4a5568;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --stat-bg: #f0f4f8;
+            --stat-text: #2d3748;
+            --outline-color: #e2e8f0; /* Default outline for light theme */
+        }
+
+        /* Dark Theme */
+        .dark {
+            --bg-color: #2d3748;
+            --text-color-primary: #ffffff;
+            --text-color-secondary: #a0aec0;
+            --card-bg: #1a202c;
+            --card-border: #4a5568;
+            --stat-bg: #2d3748;
+            --stat-text: #e2e8f0;
+            --outline-color: #4a5568; /* Outline for dark theme */
+        }
+
+        /* Midnight Theme */
+        .midnight {
+            --bg-color: #000000; /* Black background */
+            --text-color-primary: #e0e0e0; /* Light grey text */
+            --text-color-secondary: #b0b0b0; /* Slightly darker grey text */
+            --card-bg: #000000; /* Black card background */
+            --card-border: #616161; /* Grey outline for cards */
+            --stat-bg: #1a1a1a; /* Dark grey for stat backgrounds */
+            --stat-text: #bdbdbd; /* Lighter grey for stat text */
+            --outline-color: #616161; /* Grey outline for elements */
+        }
+
+        /* Apply theme variables to elements based on the class on the body/main container */
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .game-container {
+            background-color: var(--card-bg);
+            border-color: var(--card-border);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .game-container h1 {
+            color: var(--text-color-primary);
+            transition: color 0.3s ease;
+        }
+
+        .game-message, .scenario-description {
+            color: var(--text-color-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .stat-panel p, .inventory-panel p, .inventory-panel li {
+            color: var(--text-color-secondary);
+            transition: color 0.3s ease;
+        }
+
+        .stat-panel div, .inventory-panel {
+            background-color: var(--stat-bg);
+            transition: background-color 0.3s ease;
+        }
+
+        /* Specific text color adjustments for midnight theme */
+        .midnight .text-gray-900, .midnight .text-white { color: var(--text-color-primary); }
+        .midnight .text-gray-800 { color: var(--text-color-primary); }
+        .midnight .text-gray-700 { color: var(--text-color-secondary); }
+        .midnight .text-gray-600 { color: var(--text-color-secondary); }
+        .midnight .font-bold { color: var(--text-color-primary); } /* Ensure bold text is primary color */
+
+        /* Add subtle outlines for midnight theme */
+        .midnight .game-container,
+        .midnight .stat-panel div,
+        .midnight .inventory-panel {
+            border-width: 1px;
+            border-style: solid;
+            border-color: var(--outline-color);
+        }
+
+        /* Remove shadow for midnight theme if it conflicts */
+        .midnight .shadow-xl {
+            box-shadow: none;
+        }
+
+        /* Specific style for health warning message */
+        #healthWarning {
+            font-family: 'Times New Roman', serif;
+            color: #dc2626; /* Red color for warning */
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1rem;
+            animation: pulse 1s infinite alternate; /* Simple pulse animation */
+        }
+
+        @keyframes pulse {
+            from { opacity: 1; }
+            to { opacity: 0.7; }
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 640px) {
+            .max-w-md {
+                max-width: 100%; /* Full width on small screens */
+            }
+            .p-6 {
+                padding: 1rem; /* Reduce padding on small screens */
+            }
+            .text-3xl {
+                font-size: 2rem; /* Adjust title size */
+            }
+            .text-xl {
+                font-size: 1.125rem; /* Adjust scenario description size */
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 light">
+    <div class="game-container p-6 rounded-xl shadow-xl w-full max-w-md border-2">
+        <h1 class="text-3xl font-extrabold mb-6 text-center">The Road to New Orleans</h1>
+
+        <div class="flex justify-center space-x-2 mb-6">
+            <button id="lightThemeBtn" class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 bg-blue-500 text-white shadow-lg hover:scale-105 hover:shadow-xl">
+                Light
+            </button>
+            <button id="darkThemeBtn" class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 bg-gray-200 text-gray-800 shadow-lg hover:scale-105 hover:shadow-xl">
+                Dark
+            </button>
+            <button id="midnightThemeBtn" class="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 bg-gray-200 text-gray-800 shadow-lg hover:scale-105 hover:shadow-xl">
+                Midnight
+            </button>
+        </div>
+
+        <div id="difficultySelectionPanel" class="text-center">
+            <h2 class="text-2xl font-bold mb-4">Choose Your Difficulty</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <button id="easyBtn" class="px-6 py-3 bg-green-500 text-white rounded-xl hover:bg-green-600 transition-all duration-200 shadow-lg hover:scale-105 hover:shadow-xl">
+                    Easy
+                </button>
+                <button id="normalBtn" class="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition-all duration-200 shadow-lg hover:scale-105 hover:shadow-xl">
+                    Normal
+                </button>
+                <button id="hardBtn" class="px-6 py-3 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600 transition-all duration-200 shadow-lg hover:scale-105 hover:shadow-xl">
+                    Hard
+                </button>
+                <button id="challengeBtn" class="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-200 shadow-lg hover:scale-105 hover:shadow-xl">
+                    Challenge
+                </button>
+            </div>
+        </div>
+
+        <div id="gameStateDisplay" class="hidden">
+            <p id="healthWarning" class="hidden text-red-600 text-lg mb-4"></p>
+
+            <div id="gameOverPanel" class="text-center hidden">
+                <p id="gameOverMessage" class="text-xl font-semibold mb-4"></p>
+                <button id="startGameBtn" class="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 shadow-lg hover:scale-105 hover:shadow-xl">
+                    Start New Game
+                </button>
+            </div>
+
+            <div id="gameScenarioPanel">
+                <p id="gameMessage" class="mb-4 text-center text-lg"></p>
+                <p id="scenarioDescription" class="text-xl font-semibold mb-6 text-center"></p>
+
+                <div class="grid grid-cols-2 gap-4 mb-6 text-sm stat-panel">
+                    <div class="p-3 rounded-xl border">
+                        <p>Time: <span id="dayStat" class="font-bold"></span></p>
+                        <p>Miles: <span id="mileStat" class="font-bold"></span> / 510</p>
+                        <p>Location: <span id="locationStat" class="font-bold"></span></p>
+                    </div>
+                    <div class="p-3 rounded-xl border">
+                        <p>Health: <span id="healthStat" class="font-bold"></span>%</p>
+                        <p>Stamina: <span id="staminaStat" class="font-bold"></span>%</p>
+                        <p>Money: $<span id="moneyStat" class="font-bold"></span></p>
+                        <p>Bike: <span id="bikeStat" class="font-bold"></span>%</p>
+                        <p>Joy: <span id="joyStat" class="font-bold"></span>%</p>
+                    </div>
+                </div>
+
+                <div class="mb-6 p-3 rounded-xl inventory-panel border">
+                    <p class="font-bold mb-1">Inventory:</p>
+                    <ul id="inventoryList" class="list-disc list-inside">
+                        </ul>
+                </div>
+
+                <div class="flex justify-center space-x-4">
+                    <button id="yesBtn" class="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all duration-200 shadow-lg hover:scale-105 hover:shadow-xl">
+                        Yes
+                    </button>
+                    <button id="noBtn" class="px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all duration-200 shadow-lg hover:scale-105 hover:shadow-xl">
+                        No
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // This file is not needed for your HTML project. You can delete it if you wish.
+    </script>
+</body>
 </html>
